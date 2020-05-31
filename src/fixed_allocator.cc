@@ -3,49 +3,58 @@
 
 FixedAllocator::FixedAllocator (std::size_t blockSize, std::size_t numChunkBytes)
     : blockSize_(blockSize),
-      lastAllocChunk_(nullptr),
-      lastDeallocChunk_(nullptr)
+      lastAllocChunk_(-1),
+      lastDeallocChunk_(-1)
 {
     numBlocksPerChunk_ = numChunkBytes / blockSize_;
+}
+
+FixedAllocator::FixedAllocator (FixedAllocator&& temp) noexcept
+{
+    blockSize_ = temp.blockSize_;
+    numBlocksPerChunk_ = temp.numBlocksPerChunk_;
+    chunks_ = std::move(temp.chunks_);
+    lastAllocChunk_ = temp.lastAllocChunk_;
+    lastDeallocChunk_ = temp.lastDeallocChunk_;
 }
 
 void*
 FixedAllocator::Allocate ()
 {
-    if (!lastAllocChunk_ || lastAllocChunk_->blocksAvailable_ == 0) {
+    if (lastAllocChunk_ == -1 || chunks_.at(lastAllocChunk_).blocksAvailable_ == 0) {
         bool found = false;
-        for (auto& chunk : chunks_) {
-            if (chunk.blocksAvailable_ > 0) {
+        for (int i = 0; i < chunks_.size(); ++i) {
+            if (chunks_[i].blocksAvailable_ > 0) {
                 found = true;
-                lastAllocChunk_ = &chunk;
+                lastAllocChunk_ = i;
                 break;
             }
         }
 
         if (!found) {
             chunks_.push_back(Chunk(blockSize_, numBlocksPerChunk_));
-            lastAllocChunk_ = &chunks_.back();
+            lastAllocChunk_ = chunks_.size() - 1;
         }
     }
 
-    assert(lastAllocChunk_ && lastAllocChunk_->blocksAvailable_ > 0);
-    return lastAllocChunk_->Allocate(blockSize_);
+    assert(lastAllocChunk_ != -1 && chunks_.at(lastAllocChunk_).blocksAvailable_ > 0);
+
+    return chunks_.at(lastAllocChunk_).Allocate(blockSize_);
 }
 
 void
 FixedAllocator::Deallocate (void *p)
 {
-    if (lastDeallocChunk_ &&
-        lastDeallocChunk_->isOwner(p, blockSize_, numBlocksPerChunk_)) {
+    if (lastDeallocChunk_ == -1 ||
+        !chunks_.at(lastDeallocChunk_).isOwner(p, blockSize_, numBlocksPerChunk_)) {
         
-        lastDeallocChunk_->Deallocate(p, blockSize_);
-    } else {
-        for (auto& chunk : chunks_) {
-            if (chunk.isOwner(p, blockSize_, numBlocksPerChunk_)) {
-                chunk.Deallocate(p, blockSize_);
-                lastDeallocChunk_ = &chunk;
+        for (int i = 0; i < chunks_.size(); ++i) {
+            if (chunks_[i].isOwner(p, blockSize_, numBlocksPerChunk_)) {
+                lastDeallocChunk_ = i;
                 break;
             }
         }
     }
+
+    return chunks_.at(lastDeallocChunk_).Deallocate(p, blockSize_);
 }

@@ -1,4 +1,5 @@
 #include "small_obj_allocator.hh"
+#include <iostream>
 
 // nullify static instance variable
 SmallObjAllocator *SmallObjAllocator::instance = nullptr;
@@ -6,8 +7,8 @@ SmallObjAllocator *SmallObjAllocator::instance = nullptr;
 SmallObjAllocator::SmallObjAllocator (std::size_t numChunkBytes, std::size_t SmallObjSizeLimit)
     : numChunkBytes_(numChunkBytes),
       SmallObjSizeLimit_(SmallObjSizeLimit),
-      plastAlloc_(nullptr),
-      plastDealloc_(nullptr)
+      plastAlloc_(-1),
+      plastDealloc_(-1)
 {
 }
 
@@ -22,24 +23,24 @@ SmallObjAllocator::Allocate (std::size_t blockSize)
     if (blockSize > SmallObjSizeLimit_) {
         return new unsigned char[blockSize];
     }
-    
-    if (!plastAlloc_ || plastAlloc_->blockSize_ != blockSize) {
+
+    if (plastAlloc_ == -1 || pool_.at(plastAlloc_).blockSize_ != blockSize) {
         bool found = false;
-        for (auto& fa : pool_) {
-            if (fa.blockSize_ == blockSize) {
+        for (int i = 0; i < pool_.size(); ++i) {
+            if (pool_[i].blockSize_ == blockSize) {
                 found = true;
-                plastAlloc_ = &fa;
+                plastAlloc_ = i;
                 break;
             }
         }
 
         if (!found) {
             pool_.push_back(FixedAllocator(blockSize, numChunkBytes_));
-            plastAlloc_ = &pool_.back();
+            plastAlloc_ = pool_.size() - 1;
         }
     }
-    
-    return plastAlloc_->Allocate();
+
+    return pool_.at(plastAlloc_).Allocate();
 }
 
 void
@@ -47,20 +48,17 @@ SmallObjAllocator::Deallocate (void *p, std::size_t blockSize)
 {
     if (blockSize > SmallObjSizeLimit_) {
         free(p);
-        return; 
+        return;
     }
 
-    if (plastDealloc_ &&
-        plastDealloc_->blockSize_ == blockSize) {
-        
-        plastDealloc_->Deallocate(p);
-    } else {
-        for (auto& fa : pool_) {
-            if (fa.blockSize_ == blockSize) {
-                fa.Deallocate(p);
-                plastDealloc_ = &fa;
+    if (plastDealloc_ == -1 || pool_.at(plastDealloc_).blockSize_ != blockSize) {
+        for (int i = 0; i < pool_.size(); ++i) {
+            if (pool_[i].blockSize_ == blockSize) {
+                plastDealloc_ = i;
                 break;
             }
         }
     }
+
+    return pool_.at(plastDealloc_).Deallocate(p);
 }

@@ -3,10 +3,14 @@
 
 #include "fixed_allocator.hh"
 
+// Forward declaring to allow friend class
+template <typename Alloc>
+class SmallObjBase;
+
 class SmallObjAllocator
 {
 private:
-    // static SmallObjAllocator* instance;
+    static SmallObjAllocator* instance;
 
     // Private constructor for being singleton
     SmallObjAllocator (std::size_t numChunkBytes, std::size_t SmallObjSizeLimit);
@@ -17,11 +21,10 @@ private:
     using FixedAllocators = std::vector<FixedAllocator>;
     FixedAllocators pool_;
 
-    FixedAllocator *plastAlloc_;
-    FixedAllocator *plastDealloc_;
+    int plastAlloc_;
+    int plastDealloc_;
 
 public:
-    static SmallObjAllocator* instance;
     ~SmallObjAllocator();
 
     // All other constructors are deleted
@@ -44,8 +47,7 @@ public:
         return instance;
     }
 
-    // template <typename T>
-    // friend class SmallObjBase<T>;
+    friend class SmallObjBase<SmallObjAllocator>;
 };
 
 #endif

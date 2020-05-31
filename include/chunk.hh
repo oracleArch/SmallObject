@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 /*
- * Bare metal memory allocator
+ * Lowest level memory chunk
  */
 struct Chunk
 {

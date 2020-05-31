@@ -22,21 +22,10 @@ Chunk::~Chunk()
 Chunk::Chunk (Chunk&& temp) noexcept
 {
     pData_ = temp.pData_;
+    temp.pData_ = nullptr;
     firstAvailableBlock_ = temp.firstAvailableBlock_;
     blocksAvailable_ = temp.blocksAvailable_;
 }
-
-// void
-// Chunk::Init (std::size_t blockSize, unsigned char numBlocks)
-// {
-//     pData_ = new unsigned char[blockSize * numBlocks];
-//     firstAvailableBlock_ = 0;
-//     blocksAvailable_ = numBlocks;
-//     unsigned char *p = pData_;
-//     for (unsigned char i = 0; i < numBlocks; p += blockSize) {
-//         *p = ++i;
-//     }
-// }
 
 void*
 Chunk::Allocate (std::size_t blockSize)
@@ -68,10 +57,3 @@ Chunk::Deallocate (void *p, std::size_t blockSize)
 
     ++blocksAvailable_;
 }
-
-// void
-// Chunk::Release ()
-// {
-//     assert(pData_ != nullptr);
-//     delete [] pData_;
-// }

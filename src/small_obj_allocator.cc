@@ -1,8 +1,8 @@
 #include "small_obj_allocator.hh"
 #include <iostream>
 
-// nullify static instance variable
-SmallObjAllocator *SmallObjAllocator::instance = nullptr;
+// nullify static instance unique pointer
+std::unique_ptr<SmallObjAllocator> SmallObjAllocator::instance(nullptr);
 
 SmallObjAllocator::SmallObjAllocator (std::size_t numChunkBytes, std::size_t SmallObjSizeLimit)
     : numChunkBytes_(numChunkBytes),
@@ -10,11 +10,6 @@ SmallObjAllocator::SmallObjAllocator (std::size_t numChunkBytes, std::size_t Sma
       plastAlloc_(-1),
       plastDealloc_(-1)
 {
-}
-
-SmallObjAllocator::~SmallObjAllocator()
-{
-    instance = nullptr;
 }
 
 void*

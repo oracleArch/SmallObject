@@ -1,6 +1,7 @@
 #ifndef __SMALL_OBJ_ALLOCATOR_HH__
 #define __SMALL_OBJ_ALLOCATOR_HH__
 
+#include <memory>
 #include "fixed_allocator.hh"
 
 // Forward declaring to allow friend class
@@ -10,7 +11,7 @@ class SmallObjBase;
 class SmallObjAllocator
 {
 private:
-    static SmallObjAllocator* instance;
+    static std::unique_ptr<SmallObjAllocator> instance;
 
     // Private constructor for being singleton
     SmallObjAllocator (std::size_t numChunkBytes, std::size_t SmallObjSizeLimit);
@@ -25,8 +26,6 @@ private:
     int plastDealloc_;
 
 public:
-    ~SmallObjAllocator();
-
     // All other constructors are deleted
     SmallObjAllocator () = delete;
     SmallObjAllocator (SmallObjAllocator const& other) = delete;
@@ -37,14 +36,17 @@ public:
     void* Allocate (std::size_t blockSize);
     void Deallocate (void *p, std::size_t blockSize);
 
-    // FIXME: Clients need to call delete manually
-    static SmallObjAllocator* getSmallObjAllocator (std::size_t numChunkBytes, std::size_t SmallObjSizeLimit)
+    /* 
+     * Singleton class with instance being a smart pointer (unique).
+     * This allows for automatic garbage collection as clients
+     * only need to call this function without worrying about
+     * destructing SmallObjAllocator.
+     */
+    static void createSmallObjAllocator (std::size_t numChunkBytes, std::size_t SmallObjSizeLimit)
     {
         if (!instance) {
-            instance = new SmallObjAllocator(numChunkBytes, SmallObjSizeLimit);
+            instance.reset(new SmallObjAllocator(numChunkBytes, SmallObjSizeLimit));
         }
-        
-        return instance;
     }
 
     friend class SmallObjBase<SmallObjAllocator>;

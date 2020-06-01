@@ -1,5 +1,4 @@
 #include "small_obj_base.hh"
-#include <memory>
 #include <iostream>
 
 constexpr std::size_t numChunkBytes = 64;
@@ -26,7 +25,8 @@ public:
 
 int main ()
 {
-    SmallObjAllocator *small_allocator = SmallObjAllocator::getSmallObjAllocator (numChunkBytes, SmallObjSizeLimit);
+    // First create the SmallObjAllocator
+    SmallObjAllocator::createSmallObjAllocator (numChunkBytes, SmallObjSizeLimit);
 
     Test* ptr = new Test('t', -18);
     Test* ptr2 = new Test('c', 5);
@@ -39,6 +39,5 @@ int main ()
     delete ptr;
     delete ptr2;
     delete ptr3;
-    delete small_allocator;
     return 0;
 }

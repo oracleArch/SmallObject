@@ -4,7 +4,7 @@ SmallObject is a C++ library which optimizes memory allocation for small sized o
 
 ## Build and install
 
-To build and install, just execute the following commands on your bash terminal. Installation will require sudo permission. By default the install path is set to _/usr/local/_. If this is not your default path for headers and libraries, please change the path or add these to your environment variable. After installation, the dynamic library libsmobjall.so will be set up.
+To build and install, just execute the following commands on your bash terminal. Installation will require sudo permission. By default the install path is set to _/usr/local/_. If this is not your default path for headers and libraries, please change the path or add these to your environment variable. After installation, the dynamic library __libsmobjall.so__ will be set up.
 
 ```bash
 make

@@ -22,10 +22,13 @@ make examples
 ## Usage
 
 As a reference, you can look at any of the examples codes. For compilation, refer to the Makefile in exmaples/. In simple words, you need to do the following:
-* Include the __small_obj_base.hh__ header in your source code and Call __SmallObjAllocator::createSmallObjAllocator(numChunkBytes, SmallObjSizeLimit)__ write at the beginning.
+* Include the __small_obj_base.hh__ header in your source code and Call __SmallObjAllocator::createSmallObjAllocator(numChunkBytes, SmallObjSizeLimit)__ right at the beginning.
 
 ```c++
 #include <small_obj_base.hh>
+
+constexpr std::size_t numChunkBytes = 64;
+constexpr std::size_t SmallObjSizeLimit = 16;
 ...
 
 int main ()

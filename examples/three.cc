@@ -1,4 +1,4 @@
-#include "small_obj_base.hh"
+#include <libsmobjall/small_obj_base.hh>
 #include <iostream>
 
 constexpr std::size_t numChunkBytes = 64;

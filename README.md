@@ -4,7 +4,7 @@ SmallObject is a C++ library which optimizes memory allocation for small sized o
 
 ## Build and install
 
-To build and install, just execute the following commands on your bash terminal. Installation will require sudo permission. By default the install path is set to _/usr/local/_. If this is not your default path for headers and libraries, please change the path or add these to your environment variable. After installation, the dynamic library __libsmobjall.so__ will be set up.
+To build and install, just execute the following commands on your bash terminal. Installation will require sudo permission. By default, the install path is set to _/usr/_. After installation, the dynamic library __libsmobjall.so__ will be set up.
 
 ```bash
 make
@@ -21,7 +21,7 @@ make examples
 
 ## Usage
 
-As a reference, you can look at any of the examples codes. For compilation, refer to the Makefile in exmaples/. In simple words, you need to do the following:
+As a reference, you can look at any of the examples codes. For compilation, refer to the Makefile in examples/. In simple words, you need to do the following:
 * Include the __small_obj_base.hh__ header in your source code and Call __SmallObjAllocator::createSmallObjAllocator(numChunkBytes, SmallObjSizeLimit)__ right at the beginning.
 
 ```c++
@@ -40,16 +40,12 @@ int main ()
 }
 ```
 
-* Any small object class needs to inherit from __SmallObjBase<>__. The template parameter is defaulted to use SmallObjAllocator. You can also use your own allocator by inheriting from __SmallObjBase<YourAllocator>__.
+* Any small object class needs to inherit from __SmallObjBase<>__. The template parameter is defaulted to use __SmallObjAllocator__.
 
 ```c++
 class Test : public SmallObjBase<>
 ```
-or
-```c++
-class Test : public SmallObjBase<YourAllocator>
-```
 
-* Compile your source code using -std=c++11 and link it by using -lsmobjall.
+* Compile your source code using -std=c++11 and link it by using _-lsmobjall_.
 
 ## Have fun

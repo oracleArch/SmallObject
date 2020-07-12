@@ -3,7 +3,7 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -O3 -fpic
 TARGET = libsmobjall.so
-INST_PATH = /usr/local/
+INST_PATH = /usr/
 INC = -Iinclude/
 
 SRC := $(wildcard src/*.cc)
